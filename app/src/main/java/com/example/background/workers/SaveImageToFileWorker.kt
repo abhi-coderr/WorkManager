@@ -30,7 +30,6 @@ class SaveImageToFileWorker(context: Context, params: WorkerParameters) : Worker
         // it's easier to see each WorkRequest start, even on emulated devices
         makeStatusNotification("Saving image", applicationContext)
         sleep()
-
         val resolver = applicationContext.contentResolver
         return try {
             val resourceUri = inputData.getString(KEY_IMAGE_URI)

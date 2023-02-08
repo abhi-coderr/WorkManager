@@ -89,8 +89,6 @@ class BlurViewModel(application: Application) : ViewModel() {
         val builder = Data.Builder()
         imageUri?.let {
             builder.putString(KEY_IMAGE_URI, imageUri.toString())
-
-
         }
         return builder.build()
     }

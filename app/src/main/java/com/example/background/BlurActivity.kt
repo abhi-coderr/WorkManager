@@ -18,6 +18,7 @@ package com.example.background
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -35,6 +36,9 @@ class BlurActivity : AppCompatActivity() {
             application
         )
     }
+
+    private var yesGoToBlur = false
+
     private lateinit var binding: ActivityBlurBinding
 
     @SuppressLint("QueryPermissionsNeeded")
@@ -43,20 +47,49 @@ class BlurActivity : AppCompatActivity() {
         binding = ActivityBlurBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel.outputWorkInfo.observe(this, workInfosObserver())
+
 
         binding.seeFileButton.setOnClickListener {
-            viewModel.outputUri?.let {currentUri->
-                val actionView = Intent(Intent.ACTION_VIEW, currentUri)
-                actionView.resolveActivity(packageManager)?.run {
-                    startActivity(actionView)
-                }
+            viewModel.outputUri?.let { currentUri ->
+//                val actionView = Intent(Intent.ACTION_VIEW, currentUri)
+//                actionView.resolveActivity(packageManager)?.run {
+//                    startActivity(actionView)
+//                }
+                binding.imageView.setImageURI(currentUri)
+
             }
         }
 
-        binding.goButton.setOnClickListener {
-            Log.d("abhi->>>>>>","hey this is click event")
-            viewModel.applyBlur(blurLevel)
+//        binding.goButton.setOnClickListener {
+//            Log.d("abhi->>>>>>","hey this is click event")
+//            viewModel.applyBlur(blurLevel)
+//        }
+
+        binding.radioBlurGroup.setOnCheckedChangeListener { radioGroup, i ->
+
+            when (binding.radioBlurGroup.checkedRadioButtonId) {
+                R.id.radio_blur_original -> {
+                    Toast.makeText(this, "remove blur", Toast.LENGTH_SHORT).show()
+                    binding.imageView.setImageResource(R.drawable.android_cupcake)
+                }
+                R.id.radio_blur_lv_1 -> {
+                    viewModel.applyBlur(1)
+                    viewModel.outputWorkInfo.observe(this, workInfosObserver())
+                    Toast.makeText(this, "1 level", Toast.LENGTH_SHORT).show()
+                }
+                R.id.radio_blur_lv_2 -> {
+                    viewModel.applyBlur(2)
+                    viewModel.outputWorkInfo.observe(this, workInfosObserver())
+                    Toast.makeText(this, "2 level", Toast.LENGTH_SHORT).show()
+                }
+                R.id.radio_blur_lv_3 -> {
+                    viewModel.applyBlur(3)
+                    viewModel.outputWorkInfo.observe(this, workInfosObserver())
+                    Toast.makeText(this, "3 level", Toast.LENGTH_SHORT).show()
+                }
+                else -> binding.imageView.setImageResource(R.drawable.android_cupcake)
+            }
+
         }
 
     }
@@ -64,7 +97,6 @@ class BlurActivity : AppCompatActivity() {
     // Define the observer function
     private fun workInfosObserver(): Observer<List<WorkInfo>> {
         return Observer { listOfWorkInfo ->
-
             // Note that these next few lines grab a single WorkInfo if it exists
             // This code could be in a Transformation in the ViewModel; they are included here
             // so that the entire process of displaying a WorkInfo is in one location.
@@ -88,7 +120,9 @@ class BlurActivity : AppCompatActivity() {
                 // If there is an output file show "See File" button
                 if (!outputImageUri.isNullOrEmpty()) {
                     viewModel.setOutputUri(outputImageUri)
-                    binding.seeFileButton.visibility = View.VISIBLE
+                    viewModel.outputUri?.let { currentUri ->
+                        binding.imageView.setImageURI(currentUri)
+                    }
                 }
             } else {
                 showWorkInProgress()
@@ -115,7 +149,7 @@ class BlurActivity : AppCompatActivity() {
         with(binding) {
             progressBar.visibility = View.GONE
             cancelButton.visibility = View.GONE
-            goButton.visibility = View.VISIBLE
+            goButton.visibility = View.GONE
         }
     }
 
